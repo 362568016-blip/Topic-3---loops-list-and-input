@@ -15,6 +15,7 @@ namespace Topic_3___loops_list_and_input
         Texture2D grassTexture;
         Texture2D mowerTexture;
         Rectangle mowerRect;
+        SpriteFont instructionsText;
 
         SoundEffect mowerSound;
         SoundEffectInstance mowerSoundInstance;
@@ -22,6 +23,8 @@ namespace Topic_3___loops_list_and_input
         Vector2 mowerSpeed;
 
         List<Rectangle> grassTiles;
+
+        bool mowerOn;
 
         public Game1()
         {
@@ -39,6 +42,7 @@ namespace Topic_3___loops_list_and_input
             _graphics.PreferredBackBufferHeight = window.Height;
             _graphics.ApplyChanges();
 
+            mowerOn = false;
             mowerRect = new Rectangle(100, 100, 30, 30);
 
             grassTiles = new List<Rectangle>();
@@ -58,6 +62,7 @@ namespace Topic_3___loops_list_and_input
             mowerTexture = Content.Load<Texture2D>("images/mower");
             grassTexture = Content.Load<Texture2D>("images/long_grass");
             mowerSound = Content.Load<SoundEffect>("sound/mower_sound");
+            instructionsText = Content.Load<SpriteFont>("Font/TextFont");
             mowerSoundInstance = mowerSound.CreateInstance();
             mowerSoundInstance.IsLooped = true;
         }
@@ -68,25 +73,38 @@ namespace Topic_3___loops_list_and_input
                 Exit();
 
             // TODO: Add your update logic here
-            keyboardState = Keyboard.GetState();
             previousKeyboardState = keyboardState;
+
+            keyboardState = Keyboard.GetState();
             mowerSpeed = Vector2.Zero;
-            if (keyboardState.IsKeyDown(Keys.O) && previousKeyboardState.IsKeyDown(Keys.O) == ButtonState.Released)
+            
+            // Turn mower on
+            if (keyboardState.IsKeyDown(Keys.O) && previousKeyboardState.IsKeyUp(Keys.O) && !mowerOn)
+            {
+                mowerOn = true;
+            }
+            // Turns mower off
+            else if (keyboardState.IsKeyDown(Keys.O) && previousKeyboardState.IsKeyUp(Keys.O) && mowerOn)
+            {
+                mowerOn = false;
+            }
+
+            if (mowerOn)
             {
                 if (keyboardState.IsKeyDown(Keys.W))
-                    mowerSpeed.Y -= 1;
+                    mowerSpeed.Y -= 5;
                 if (keyboardState.IsKeyDown(Keys.S))
-                    mowerSpeed.Y += 1;
+                    mowerSpeed.Y += 5;
                 if (keyboardState.IsKeyDown(Keys.A))
-                    mowerSpeed.X -= 1;
+                    mowerSpeed.X -= 5;
                 if (keyboardState.IsKeyDown(Keys.D))
-                    mowerSpeed.X += 1;
+                    mowerSpeed.X += 5;
             }
-            if (keyboardState.IsKeyDown(Keys.F))
-            {
-                mowerRect.Offset(mowerSpeed);
-            }
-            if (mowerSpeed == Vector2.Zero)
+
+            mowerRect.Offset(mowerSpeed);
+
+            
+            if (!mowerOn)
                 mowerSoundInstance.Stop();
             else
                 mowerSoundInstance.Play();
@@ -98,6 +116,13 @@ namespace Topic_3___loops_list_and_input
 
                     i--;
                 }
+
+            if (keyboardState.IsKeyDown(Keys.C) && previousKeyboardState.IsKeyUp(Keys.C))
+            {
+                for (int x = 0; x < window.Width; x += 5)
+                    for (int y = 0; y < window.Height; y += 5)
+                        grassTiles.Add(new Rectangle(x, y, 5, 5));
+            }
 
             base.Update(gameTime);
         }
@@ -113,6 +138,8 @@ namespace Topic_3___loops_list_and_input
             _spriteBatch.Draw(mowerTexture, mowerRect, Color.White);
             foreach (Rectangle grass in grassTiles)
                 _spriteBatch.Draw(grassTexture, grass, Color.White);
+            _spriteBatch.DrawString(instructionsText, "O = On/Off", new Vector2(630, 440), Color.White);
+            _spriteBatch.DrawString(instructionsText, "C = Clear Cut Grass", new Vector2(550, 470), Color.White);
 
             _spriteBatch.End();
 
