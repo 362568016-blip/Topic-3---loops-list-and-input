@@ -21,6 +21,7 @@ namespace Topic_3___loops_list_and_input
         SoundEffectInstance mowerSoundInstance;
 
         Vector2 mowerSpeed;
+        int mowerGear;
 
         List<Rectangle> grassTiles;
 
@@ -44,6 +45,7 @@ namespace Topic_3___loops_list_and_input
 
             mowerOn = false;
             mowerRect = new Rectangle(100, 100, 30, 30);
+            mowerGear = 5;
 
             grassTiles = new List<Rectangle>();
             for (int x = 0; x < window.Width; x += 5)
@@ -88,17 +90,31 @@ namespace Topic_3___loops_list_and_input
             {
                 mowerOn = false;
             }
+            //Speed up
+            if (keyboardState.IsKeyDown(Keys.U) && previousKeyboardState.IsKeyUp(Keys.U) && mowerOn == true)
+            {
+                mowerGear++;
+                if (mowerGear > 13)
+                    mowerGear = 13;
+            }
+            // Slow down
+            if (keyboardState.IsKeyDown(Keys.Y) && previousKeyboardState.IsKeyUp(Keys.Y) && mowerOn == true)
+            {
+                mowerGear--;
+                if (mowerGear <1)
+                    mowerGear = 1;
+            }
 
             if (mowerOn)
             {
                 if (keyboardState.IsKeyDown(Keys.W))
-                    mowerSpeed.Y -= 5;
+                    mowerSpeed.Y -= mowerGear;
                 if (keyboardState.IsKeyDown(Keys.S))
-                    mowerSpeed.Y += 5;
+                    mowerSpeed.Y += mowerGear;
                 if (keyboardState.IsKeyDown(Keys.A))
-                    mowerSpeed.X -= 5;
+                    mowerSpeed.X -= mowerGear;
                 if (keyboardState.IsKeyDown(Keys.D))
-                    mowerSpeed.X += 5;
+                    mowerSpeed.X += mowerGear;
             }
 
             mowerRect.Offset(mowerSpeed);
@@ -140,6 +156,7 @@ namespace Topic_3___loops_list_and_input
                 _spriteBatch.Draw(grassTexture, grass, Color.White);
             _spriteBatch.DrawString(instructionsText, "O = On/Off", new Vector2(630, 440), Color.White);
             _spriteBatch.DrawString(instructionsText, "C = Clear Cut Grass", new Vector2(550, 470), Color.White);
+            _spriteBatch.DrawString(instructionsText, ("Speed = " + mowerGear), new Vector2(630, 20), Color.OrangeRed);
 
             _spriteBatch.End();
 
